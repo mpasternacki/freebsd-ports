@@ -1023,9 +1023,11 @@
     SUBDIR += rubygem-amqp-utils
     SUBDIR += rubygem-amqp067
     SUBDIR += rubygem-aws-s3
+    SUBDIR += rubygem-aws-ses
     SUBDIR += rubygem-bunny
     SUBDIR += rubygem-bunny060
     SUBDIR += rubygem-connection_pool
+    SUBDIR += rubygem-dogapi
     SUBDIR += rubygem-domain_name
     SUBDIR += rubygem-dropbox-sdk
     SUBDIR += rubygem-epp-client-afnic
