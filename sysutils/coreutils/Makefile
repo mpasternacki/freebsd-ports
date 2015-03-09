@@ -30,18 +30,20 @@ USE_LDCONFIG=	yes
 
 INFO=		coreutils
 
-OPTIONS_DEFINE=	GMP NLS
+OPTIONS_DEFINE=	GMP NLS ADVCPMV
 OPTIONS_DEFAULT=NLS
 OPTIONS_SUB=	yes
 NLS_USES=	gettext
 NLS_CONFIGURE_ENABLE=   nls
 GMP_LIB_DEPENDS=	libgmp.so:${PORTSDIR}/math/gmp
 GMP_CONFIGURE_WITH=	gmp
+ADVCPMV_DESC=	Apply progress bar patch for cp and mv
+ADVCPMV_EXTRA_PATCHES=	${PATCHDIR}/extra-patch-advcpmv
 
 .include <bsd.port.options.mk>
 
 .if ${OSVERSION} >= 800039
-EXTRA_PATCHES=	${PATCHDIR}/extra-patch-stty.c
+EXTRA_PATCHES+=	${PATCHDIR}/extra-patch-stty.c
 .endif
 
 post-build:
