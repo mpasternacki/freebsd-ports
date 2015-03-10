@@ -1452,6 +1452,7 @@
     SUBDIR += p5-Algorithm-C3
     SUBDIR += p5-Algorithm-ChooseSubsets
     SUBDIR += p5-Algorithm-Cluster
+    SUBDIR += p5-Algorithm-Cron
     SUBDIR += p5-Algorithm-Dependency
     SUBDIR += p5-Algorithm-Dependency-Objects
     SUBDIR += p5-Algorithm-Diff
@@ -1509,6 +1510,7 @@
     SUBDIR += p5-App-Trace
     SUBDIR += p5-App-cpanminus
     SUBDIR += p5-App-cpanoutdated
+    SUBDIR += p5-App-local-lib-helper
     SUBDIR += p5-App-perlbrew
     SUBDIR += p5-App-scan_prereqs_cpanfile
     SUBDIR += p5-AppConfig
@@ -2015,7 +2017,6 @@
     SUBDIR += p5-EV
     SUBDIR += p5-Env-PS1
     SUBDIR += p5-Env-Path
-    SUBDIR += p5-Errno
     SUBDIR += p5-Error-Helper
     SUBDIR += p5-Eval-Closure
     SUBDIR += p5-Eval-Context
@@ -3143,6 +3144,7 @@
     SUBDIR += p5-Time-Stopwatch
     SUBDIR += p5-Time-Warp
     SUBDIR += p5-Time-modules
+    SUBDIR += p5-Time-timegm
     SUBDIR += p5-TimeDate
     SUBDIR += p5-ToolSet
     SUBDIR += p5-TraceFuncs
