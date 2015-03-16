@@ -1,0 +1,2 @@
+%%DOCKER%%bin/docker
+%%DATADIR%%/boot2docker.iso
