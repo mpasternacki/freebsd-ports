@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# Needs: grub2-bhyve, detachtty
+# PROVIDE: boot2docker
+# REQUIRE: LOGIN
+# KEYWORD: nojail shutdown
 
 . /etc/rc.subr
 . /etc/network.subr
@@ -25,27 +27,60 @@ load_rc_config $name
 : ${boot2docker_ncpu:="2"}
 : ${boot2docker_if:="tap0"}
 : ${boot2docker_vmname:="${name}"}
-: ${boot2docker_bhyve_args:=""}
+: ${boot2docker_flags:=""}
 : ${boot2docker_kernel_args:=""}
 : ${boot2docker_group:="operator"}
 
 rundir=/var/run/${name}
 pidfile=${rundir}/detachtty.pid
+procname=/usr/local/bin/detachtty
+required_modules=vmm
 
 b2d_iso=%%DATADIR%%/boot2docker.iso
+
+_b2d_wait_for()
+{
+    _what=$1
+    _timeout=$2
+    _test=$3
+
+    info "Waiting for ${_what} (${_timeout}s)"
+    while ! eval "${_test}" ; do
+        sleep 1
+        if ! check_pidfile $pidfile $procname ; then
+            error "${name} has stopped"
+            return 1
+        fi
+        _timeout=$((${_timeout} - 1))
+        if [ ${_timeout} -gt 0 ] ; then
+            debug "Still waiting for ${_what} (${_timeout}s)"
+        else
+            error "Timed out waiting for ${_what}"
+            return 1
+        fi
+    done
+}
+
+b2d_has_ssh()
+{
+    nc -z ${boot2docker_ip%%:*} 22
+}
 
 _b2d_magic='boot2docker, please format-me'
 b2d_start()
 {
-    set -e
-
-    install -d -m 0750 -o root -g ${boot2docker_group} ${boot2docker_dir}
+    if test -e /dev/vmm/${boot2docker_vmname} ; then
+        error "Bhyve VM ${boot2docker_vmname} already exists"
+        return 1
+    fi
+    
+    install -d -m 0750 -o root -g ${boot2docker_group} ${boot2docker_dir} || return 1
 
     if test -e ${boot2docker_dir}/id_rsa ; then
         debug "SSH key pair already exists"
     else
         info "Generating SSH key pair"
-        ssh-keygen -t rsa -N '' -f ${boot2docker_dir}/id_rsa
+        ssh-keygen -t rsa -N '' -f ${boot2docker_dir}/id_rsa || return 1
     fi
 
     if test -e ${boot2docker_data_path} ; then
@@ -53,9 +88,9 @@ b2d_start()
     else
         info "Initializing data volume at ${boot2docker_data_path}"
         if echo "${boot2docker_data_path}" | grep -q '^/dev/zvol/' ; then
-            zfs create -V ${boot2docker_data_size} ${boot2docker_data_path#/dev/zvol/}
+            zfs create -V ${boot2docker_data_size} ${boot2docker_data_path#/dev/zvol/} || return 1
         else
-            truncate -s ${boot2docker_data_size} ${boot2docker_data_path}
+            truncate -s ${boot2docker_data_size} ${boot2docker_data_path} || return 1
         fi
 
         info "Creating userdata..."
@@ -68,20 +103,19 @@ b2d_start()
         tar -C ${uddir} -cvf ${udfile} --numeric-owner --format=ustar "${_b2d_magic}" .ssh
 
         info "Installing userdata..."
-        dd if=${udfile} of=${boot2docker_data_path} bs=4096 conv=sync,notrunc
+        dd if=${udfile} of=${boot2docker_data_path} bs=4096 conv=sync,notrunc || return 1
 
         rm -rf ${uddir} ${udfile}
     fi
 
-    install -d -m 0700 ${rundir}
-    cd ${rundir}
+    install -d -m 0700 ${rundir} || return 1
 
-    cat >./device.map <<EOF
+    cat >${rundir}/device.map <<EOF || return 1
 (cd0) ${b2d_iso}
 (hd0) ${boot2docker_data_path}
 EOF
 
-    cat >./grub.cfg <<EOF
+    cat >${rundir}/grub.cfg <<EOF || return 1
 set root=(cd0,msdos1)
 linux /boot/vmlinuz64 com1=9600,8n1 loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10:LABEL=boot2docker-data base ip=${boot2docker_ip}${boot2docker_kernel_args:+ ${boot2docker_kernel_args}}
 initrd /boot/initrd.img
@@ -89,14 +123,14 @@ boot
 EOF
 
     debug "Running grub..."
-    env TERM=dumb /usr/local/sbin/grub-bhyve -e -m ./device.map -d $(pwd) -M ${boot2docker_mem} ${boot2docker_vmname}
-
+    env TERM=dumb TZ=UTC /usr/local/sbin/grub-bhyve -e -m ${rundir}/device.map -d ${rundir} -M ${boot2docker_mem} ${boot2docker_vmname} || return 1
+    
     debug "Starting bhyve..."
-    /usr/local/bin/detachtty \
-        --dribble-file detachtty.dribble \
-        --log-file detachtty.log \
-        --pid-file detachtty.pid \
-        ./detachtty.sock \
+    env TERM=dumb TZ=UTC /usr/local/bin/detachtty \
+        --dribble-file ${rundir}/detachtty.dribble \
+        --log-file ${rundir}/detachtty.log \
+        --pid-file ${rundir}/detachtty.pid \
+        ${rundir}/detachtty.sock \
         /usr/sbin/bhyve \
         -c ${boot2docker_ncpu} -m ${boot2docker_mem} -H -P -A \
         -l com1,stdio \
@@ -105,40 +139,28 @@ EOF
         -s 2:0,virtio-net,${boot2docker_if} \
         -s 3:0,ahci-hd,${boot2docker_data_path} \
         -s 3:1,ahci-cd,${b2d_iso} \
-        ${boot2docker_bhyve_args} \
-        ${boot2docker_vmname}
+        ${boot2docker_flags} \
+        ${boot2docker_vmname} || return 1
 
-    debug "Waiting for ${boot2docker_if}..."
-    while ! ifconfig ${boot2docker_if} | grep -q 'Opened by PID' ; do
-        sleep .25
-        test -f detachtty.pid || exit 1
-    done
-    ifn_start ${boot2docker_if}
+    _b2d_wait_for ${boot2docker_if} 15 "ifconfig ${boot2docker_if} | grep -q 'Opened by PID'" || return 1
+    ifn_start ${boot2docker_if} || return 1
 
-    debug "Waiting for ssh..."
-    while ! nc -z ${boot2docker_ip%%:*} 22 ; do
-        sleep .25
-        test -f detachtty.pid || exit 1
-    done
+    _b2d_wait_for SSH 15 b2d_has_ssh || return 1
 
     debug "Installing resolv.conf..."
-    b2d_ssh sudo install -m 0644 /proc/net/pnp /etc/resolv.conf
+    b2d_ssh sudo install -m 0644 /proc/net/pnp /etc/resolv.conf || return 1
 
-    debug "Waiting for certificates..."
-    while ! b2d_ssh test -d .docker ; do
-        sleep .1
-        test -f detachtty.pid || exit 1
-    done
+    _b2d_wait_for certificates 15 "b2d_ssh test -d .docker" || return 1
 
     debug "Fetching certificates..."
-    b2d_ssh tar -C \~/.docker -c . | tar -C ${boot2docker_dir} -xf - --no-same-owner --no-same-permissions
+    b2d_ssh tar -C '~/.docker' -c . > ${boot2docker_dir}/dot.docker.tar || return 1
+    tar -C ${boot2docker_dir} -xf ${boot2docker_dir}/dot.docker.tar --no-same-owner --no-same-permissions || return 1
+    rm ${boot2docker_dir}/dot.docker.tar
 
     echo "export DOCKER_HOST=tcp://${boot2docker_ip%%:*}:2376 DOCKER_TLS_VERIFY=1 DOCKER_CERT_PATH=${boot2docker_dir}" > ${boot2docker_dir}/profile.sh
 
-    chown root:operator ${boot2docker_dir}/*.pem ${boot2docker_dir}/profile.sh
+    chown root:${boot2docker_group} ${boot2docker_dir}/*.pem ${boot2docker_dir}/profile.sh
     chmod 0640 ${boot2docker_dir}/*.pem ${boot2docker_dir}/profile.sh
-
-    set +e
 }
 
 b2d_ssh()
@@ -153,12 +175,24 @@ b2d_attach()
 
 b2d_stop()
 {
-    cd ${rundir}
-    b2d_ssh sudo halt
-    while ifconfig ${boot2docker_if} | grep -q 'Opened by PID' ; do
-        sleep .5
-    done
-    bhyvectl --vm=${boot2docker_vmname} --destroy
+    if [ -z "$rc_pid" ]; then
+	[ -n "$rc_fast" ] && return 0
+	_run_rc_notrunning
+	return 1
+    fi
+
+    if b2d_has_ssh ; then
+        b2d_ssh sudo halt
+    elif [ -e /dev/vmm/${boot2docker_vmname} ] ; then
+        bhyvectl --vm=${boot2docker_vmname} --force-poweroff
+    fi
+
+    # TODO: timeout? force-kill bhyve binary? or maybe the detachtty?
+    wait_for_pids $rc_pid
+
+    if [ -e /dev/vmm/${boot2docker_vmname} ] ; then
+        bhyvectl --vm=${boot2docker_vmname} --destroy
+    fi
 }
 
 run_rc_command "${@}"

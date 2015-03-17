@@ -21,6 +21,9 @@ OPTIONS_SUB=	yes
 DOCKER_DESC=	Include Docker client binary
 USE_RC_SUBR=	${PORTNAME}
 
+RUN_DEPENDS=	detachtty:${PORTSDIR}/misc/detachtty \
+		grub-bhyve:${PORTSDIR}/sysutils/grub2-bhyve
+
 .include <bsd.port.options.mk>
 
 .if ${PORT_OPTIONS:MDOCKER}
@@ -31,8 +34,6 @@ EXTRACT_ONLY+=	docker-${PORTVERSION}.tgz
 do-install:
 	${MKDIR} ${STAGEDIR}${DATADIR}
 	${INSTALL_DATA} ${DISTDIR}/${DIST_SUBDIR}/boot2docker.iso ${STAGEDIR}${DATADIR}/boot2docker.iso
-#	${INSTALL_SCRIPT} ${FILESDIR}/bootlocal.sh ${STAGEDIR}${DATADIR}/bootlocal.sh
-#	${INSTALL_SCRIPT} ${FILESDIR}/boot2docker.rc ${STAGEDIR}${PREFIX}/etc/rc.d/boot2docker
 .if ${PORT_OPTIONS:MDOCKER}
 	${INSTALL_PROGRAM} ${WRKSRC}/usr/local/bin/docker ${STAGEDIR}${PREFIX}/bin
 .endif
