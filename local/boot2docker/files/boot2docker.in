@@ -22,7 +22,6 @@ load_rc_config $name
 : ${boot2docker_version:="1.5.0"}
 : ${boot2docker_data_path:="${boot2docker_dir}/data.img"}
 : ${boot2docker_data_size:="10G"}
-: ${boot2docker_ip:="172.16.1.2::172.16.1.1:255.255.255.252:boot2docker:eth0:off:192.168.0.23:8.8.8.8"}
 : ${boot2docker_mem:="2048M"}
 : ${boot2docker_ncpu:="2"}
 : ${boot2docker_if:="tap0"}
@@ -30,6 +29,26 @@ load_rc_config $name
 : ${boot2docker_flags:=""}
 : ${boot2docker_kernel_args:=""}
 : ${boot2docker_group:="operator"}
+
+# Default host IP CIDR from $boot2docker_if's ifconfig rc settings
+_boot2docker_hostip_ifconfig="$(ifconfig_getargs $boot2docker_if)"
+_boot2docker_hostip_ifconfig="${_boot2docker_hostip_ifconfig##*inet }"
+_boot2docker_hostip_ifconfig="${_boot2docker_hostip_ifconfig%% *}"
+: ${boot2docker_hostip:="${_boot2docker_hostip_ifconfig}"}
+
+# Default netmask from host IP CIDR
+_intmask=$((0xffffffff ^ ((1 << (32 - ${boot2docker_hostip##*/})) - 1)))
+: ${boot2docker_netmask:="$(($_intmask>>24)).$(($_intmask>>16&255)).$(($_intmask>>8&255)).$(($_intmask&255))"}
+
+# Default IP is host IP + 1
+_hostip=${boot2docker_hostip%/*}
+: ${boot2docker_ip:="${_hostip%.*}.$((${_hostip##*.}+1))"}
+
+# Default gateway is host's IP
+: ${boot2docker_gw:="${_hostip}"}
+
+# Default nameservers from resolv_conf
+: ${boot2docker_ns:="$(awk 'BEGIN { ORS=" " } $1 == "nameserver" { print $2 }' /etc/resolv.conf)"}
 
 rundir=/var/run/${name}
 pidfile=${rundir}/detachtty.pid
@@ -63,7 +82,7 @@ _b2d_wait_for()
 
 b2d_has_ssh()
 {
-    nc -z ${boot2docker_ip%%:*} 22
+    nc -z ${boot2docker_ip} 22
 }
 
 _b2d_magic='boot2docker, please format-me'
@@ -115,9 +134,12 @@ b2d_start()
 (hd0) ${boot2docker_data_path}
 EOF
 
+    _b2d_ns1="${boot2docker_ns%% *}"
+    _b2d_ns2="${boot2docker_ns#* }"
+    _b2d_ns2="${_b2d_ns2%% *}"
     cat >${rundir}/grub.cfg <<EOF || return 1
 set root=(cd0,msdos1)
-linux /boot/vmlinuz64 com1=9600,8n1 loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10:LABEL=boot2docker-data base ip=${boot2docker_ip}${boot2docker_kernel_args:+ ${boot2docker_kernel_args}}
+linux /boot/vmlinuz64 com1=9600,8n1 loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10:LABEL=boot2docker-data base ip=${boot2docker_ip}::${boot2docker_gw}:${boot2docker_netmask}:boot2docker:eth0:off:${_b2d_ns1}:${_b2d_ns2} ${boot2docker_kernel_args}
 initrd /boot/initrd.img
 boot
 EOF
