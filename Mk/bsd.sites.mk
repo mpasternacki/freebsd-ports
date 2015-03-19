@@ -512,20 +512,22 @@ MASTER_SITE_GENTOO+= \
 # variables:
 #
 # GH_ACCOUNT    - account name of the GitHub user hosting the project
-#                 default: not set, mandatory
+#                 default: ${PORTNAME}
 #
 # GH_PROJECT    - name of the project on GitHub
 #                 default: ${PORTNAME}
 #
 # GH_TAGNAME    - name of the tag to download (2.0.1, hash, ...)
 #                 Using the name of a branch here is incorrect. It is
-#                 possible to do GH_TAGNAME=${GH_COMMIT} to do a snapshot
+#                 possible to do GH_TAGNAME= GIT_HASH to do a snapshot.
 #                 default: ${DISTVERSION}
 #
 # GH_COMMIT     - first 7 digits of the commit that generated GH_TAGNAME
 #                 (man git-describe(1))
 #                 if this is not set, archive corresponding to tag is fetched
 #                 default: not set
+#                 This is a deprecated option. Just set the hash in GH_TAGNAME
+#                 instead.
 #
 .if defined(USE_GITHUB)
 .  if defined(GH_TAGNAME) && ${GH_TAGNAME} == master
@@ -533,17 +535,18 @@ IGNORE?=	Using master as GH_TAGNAME is invalid. \
 		Must use a tag or commit hash so the upstream does \
 		not "reroll" as soon as the branch is updated
 .  endif
+# We are cheating and using backend URLS for Github here. See ports/194898
+# comment #15 for explanation as to why and how to deal with it if it breaks.
 MASTER_SITE_GITHUB+=		https://codeload.github.com/%SUBDIR%
 MASTER_SITE_GITHUB_CLOUD+=	http://cloud.github.com/downloads/%SUBDIR%
 MASTER_SITE_GITHUB_LEGACY+=	https://codeload.github.com/%SUBDIR%
-MASTER_SITE_GITHUB_RELEASE+=	https://github.com/%SUBDIR%
 
 .  if defined(GH_COMMIT)
 .    if !defined(MASTER_SITES) || !${MASTER_SITES:MGHL}
 MASTER_SITES+=	GHL
 .    endif
 .  else
-.    if !defined(MASTER_SITES) || !${MASTER_SITES:MGH} && !${MASTER_SITES:MGHC} && !${MASTER_SITES:MGHR}
+.    if !defined(MASTER_SITES) || !${MASTER_SITES:MGH} && !${MASTER_SITES:MGHC}
 MASTER_SITES+=	GH
 .    endif
 .  endif
@@ -1494,7 +1497,6 @@ MASTER_SITES_ABBREVS=	CPAN:PERL_CPAN \
 			GH:GITHUB \
 			GHC:GITHUB_CLOUD \
 			GHL:GITHUB_LEGACY \
-			GHR:GITHUB_RELEASE \
 			LODEV:LIBREOFFICE_DEV \
 			NL:NETLIB \
 			SF:SOURCEFORGE \
@@ -1510,7 +1512,6 @@ MASTER_SITES_SUBDIRS=	APACHE_JAKARTA:${PORTNAME:S,-,/,}/source \
 			GITHUB:${GH_ACCOUNT}/${GH_PROJECT}/tar.gz/${GH_TAGNAME}?dummy=/ \
 			GITHUB_CLOUD:${GH_ACCOUNT}/${GH_PROJECT}/ \
 			GITHUB_LEGACY:${GH_ACCOUNT}/${GH_PROJECT}/legacy.tar.gz/${GH_TAGNAME}?dummy=/ \
-			GITHUB_RELEASE:${GH_ACCOUNT}/${GH_PROJECT}/archive/${DISTVERSIONPREFIX}${DISTVERSION:C/:(.)/\1/g}${DISTVERSIONSUFFIX}${EXTRACT_SUFX}?dummy=/ \
 			GNOME:sources/${PORTNAME}/${PORTVERSION:C/^([0-9]+\.[0-9]+).*/\1/} \
 			GIMP:${PORTNAME}/${PORTVERSION:R}/ \
 			GNU:${PORTNAME} \
