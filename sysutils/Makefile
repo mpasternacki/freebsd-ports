@@ -697,6 +697,7 @@
     SUBDIR += php55-posix
     SUBDIR += php56-fileinfo
     SUBDIR += php56-posix
+    SUBDIR += pick
     SUBDIR += pidof
     SUBDIR += pipemeter
     SUBDIR += plasma-applet-apcups
@@ -760,6 +761,7 @@
     SUBDIR += py-shutilwhich
     SUBDIR += py-stdiff
     SUBDIR += py-supervisor
+    SUBDIR += py-tmuxp
     SUBDIR += py-zdaemon
     SUBDIR += py-zfs
     SUBDIR += pydf
