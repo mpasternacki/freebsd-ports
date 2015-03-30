@@ -5,7 +5,8 @@ PORTNAME=	radiusclient
 PORTVERSION=	0.5.6
 PORTREVISION=	3
 CATEGORIES=	net
-MASTER_SITES=	http://download.berlios.de/radiusclient-ng/ \
+MASTER_SITES=	SF/radiusclient-ng.berlios \
+		http://download.berlios.de/radiusclient-ng/ \
 		http://download2.berlios.de/radiusclient-ng/
 DISTNAME=	${PORTNAME}-ng-${PORTVERSION}
 
