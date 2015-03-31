@@ -28,7 +28,7 @@ PLIST_SUB=	VER="${RVER}" WWWOWN="${WWWOWN}" WWWGRP="${WWWGRP}"
 
 OPTIONS_SINGLE=	DB
 OPTIONS_SINGLE_DB=	MYSQL PGSQL SQLITE
-BROKEN=		You must select one and only one option from the DB single
+OPTIONS_DEFAULT=	MYSQL
 
 .include <bsd.port.options.mk>
 
