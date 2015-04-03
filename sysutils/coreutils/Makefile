@@ -41,12 +41,6 @@ GMP_CONFIGURE_WITH=	gmp
 ADVCPMV_DESC=	Apply progress bar patch for cp and mv
 ADVCPMV_EXTRA_PATCHES=	${PATCHDIR}/extra-patch-advcpmv
 
-.include <bsd.port.options.mk>
-
-.if ${OSVERSION} >= 800039
-EXTRA_PATCHES+=	${PATCHDIR}/extra-patch-stty.c
-.endif
-
 post-build:
 	@${REINPLACE_CMD} -e "s/ lib / /g" ${WRKSRC}/Makefile
 	@${TOUCH} ${WRKSRC}/doc/coreutils.info
