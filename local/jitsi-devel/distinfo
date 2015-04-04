@@ -1,0 +1,6 @@
+SHA256 (jitsi-devel/jitsi-5439.tar.gz) = 4f65daf7f767eb5efc26db0a54efb18866e180286212680a8cc99eb0e18a8611
+SIZE (jitsi-devel/jitsi-5439.tar.gz) = 64219967
+SHA256 (jitsi-devel/libjitsi-604.tar.gz) = 958b05a9eb76f97a00e09a82e54058f740119906370aed789010892c69ec83e4
+SIZE (jitsi-devel/libjitsi-604.tar.gz) = 22189866
+SHA256 (jitsi-devel/ice4j-r497.tar.gz) = 255bafe052d0622d4ccece699c79fe540c5fef0bc015ffe4498ee08a54812b3f
+SIZE (jitsi-devel/ice4j-r497.tar.gz) = 3171353

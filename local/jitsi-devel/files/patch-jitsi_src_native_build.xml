@@ -1,0 +1,130 @@
+diff --git jitsi.orig/src/native/build.xml jitsi/src/native/build.xml
+index 917b247..7864d61 100644
+--- jitsi/src/native/build.xml.orig
++++ jitsi/src/native/build.xml
+@@ -28,6 +28,13 @@
+     </or>
+   </condition>
+ 
++  <condition property="is.running.unix" value="unix">
++    <or>
++      <isset property="is.running.linux"/>
++      <isset property="is.running.freebsd"/>
++    </or>
++  </condition>
++
+   <!--
+     Cross compilation. It is mainly used on Linux to cross-compile 32-bit
+     binaries on a 64-bit host. It is also used to compile ffmpeg on Mac OS X for
+@@ -79,6 +86,20 @@
+     <isset property="is.running.macos"/>
+   </condition>
+ 
++  <condition property="native_install_dir" value="${native.libs}/freebsd">
++    <and>
++      <isset property="is.running.freebsd"/>
++      <equals arg1="${arch}" arg2="32" />
++    </and>
++  </condition>
++
++  <condition property="native_install_dir" value="${native.libs}/freebsd-64">
++    <and>
++      <isset property="is.running.freebsd"/>
++      <equals arg1="${arch}" arg2="64" />
++    </and>
++  </condition>
++
+   <!-- The path to the dpkg-buildpackage tool -->
+   <property name="dpkg-buildpackage" value="/usr/bin/dpkg-buildpackage"/>
+   <!-- The path to the dh_testdir tool -->
+@@ -118,14 +139,15 @@
+       <!-- Linux specific flags -->
+       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+       <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
+ 
+       <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+       <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+-      <linkerarg value="-lX11" location="end" if="is.running.linux" />
++      <linkerarg value="-lX11" location="end" if="is.running.unix" />
+ 
+       <!-- Mac OS X specific flags -->
+       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+@@ -164,15 +186,16 @@
+       <!-- Linux specific flags -->
+       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+ 
+       <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <linkerarg value="-lX11" location="end" if="is.running.linux" />
++      <linkerarg value="-lX11" location="end" if="is.running.unix" />
+       <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+ 
+-      <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_unix.c" if="is.running.linux" />
++      <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_unix.c" if="is.running.unix" />
+ 
+       <!-- Mac OS X specific flags -->
+       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+@@ -223,8 +246,9 @@
+       <!-- Linux specific flags -->
+       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+ 
+       <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+@@ -488,17 +512,18 @@
+                  includes="*.m" if="is.running.macos"/>
+ 
+         <!-- Linux specific flags -->
+-        <fileset dir="${src}/native/globalshortcut" includes="*.cc" if="is.running.linux" />
++        <fileset dir="${src}/native/globalshortcut" includes="*.cc" if="is.running.unix" />
+ 
+         <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+         <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
++        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+         <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++        <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+ 
+         <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+         <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-        <linkerarg value="-lX11" if="is.running.linux" />
+-        <linkerarg value="-lstdc++" if="is.running.linux" />
++        <linkerarg value="-lX11" if="is.running.unix" />
++        <linkerarg value="-lstdc++" if="is.running.unix" />
+         <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+     </cc>
+   </target>
+@@ -543,14 +568,13 @@
+                 <compilerarg value="-fPIC"/>
+                 <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+ 
+-                <compilerarg value="-I${system.JAVA_HOME}/include"
+-                             if="is.running.linux" />
+-                <compilerarg value="-I${system.JAVA_HOME}/include/linux"
+-                             if="is.running.linux" />
++                <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
++                <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++                <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+ 
+                 <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+                 <linkerarg value="-shared"/>
+-                <linkerarg value="-lunbound" if="is.running.linux"/>
++                <linkerarg value="-lunbound" if="is.running.unix"/>
+ 
+                 <fileset dir="${src}/native/libjunbound/src"
+                         includes="*.cpp"/>

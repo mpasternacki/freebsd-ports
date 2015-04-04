@@ -1,0 +1,243 @@
+diff --git c/vendor/libjitsi/src/native/build.xml w/vendor/libjitsi/src/native/build.xml
+index f60c3a1..27ef426 100644
+--- libjitsi/src/native/build.xml.orig
++++ libjitsi/src/native/build.xml
+@@ -177,16 +177,17 @@
+ 
+       <!-- Linux specific flags -->
+       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+-      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
++      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" /> 
++      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
+ 
+       <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+       <linkerarg value="-Wl,--no-undefined" unless="is.running.macos" />
+       <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+-      <linkerarg value="-lX11" location="end" if="is.running.linux" />
+-      <linkerarg value="-lXext" location="end" if="is.running.linux" />
++      <linkerarg value="-lX11" location="end" if="is.running.unix" />
++      <linkerarg value="-lXext" location="end" if="is.running.unix" />
+ 
+       <!-- Mac OS X specific flags -->
+       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+@@ -241,7 +242,10 @@
+       <linkerarg value="-ljawt" location="end" />
+ 
+       <!-- Linux-specific flags -->
++      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-I${system.JAVA_HOME}/include/freebsd" if="is.running.freebsd" />
++
+       <!-- some debian specific -->
+       <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
+       <compilerarg value="-g" if="is.running.debian"/>
+@@ -250,13 +254,13 @@
+       <compilerarg value="-Werror=format-security" if="is.running.debian"/>
+       <compilerarg value="-Wformat" if="is.running.debian"/>
+ 
+-      <linkerarg value="-L${system.JAVA_HOME}/jre/lib/i386" if="is.running.linux" />
+-      <linkerarg value="-L${system.JAVA_HOME}/jre/lib/amd64" if="is.running.linux" />
++      <linkerarg value="-L${system.JAVA_HOME}/lib/i386" if="is.running.unix" />
++      <linkerarg value="-L${system.JAVA_HOME}/lib/amd64" if="is.running.unix" />
+       <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+-      <linkerarg value="-lXv" location="end" if="is.running.linux" />
+-      <linkerarg value="-lX11" location="end" if="is.running.linux" />
++      <linkerarg value="-lXv" location="end" if="is.running.unix" />
++      <linkerarg value="-lX11" location="end" if="is.running.unix" />
+ 
+-      <fileset dir="${src}/native/jawtrenderer" includes="org*.c JAWTRenderer_Linux.c" if="is.running.linux"/>
++      <fileset dir="${src}/native/jawtrenderer" includes="org*.c JAWTRenderer_Linux.c" if="is.running.unix"/>
+ 
+       <!-- Mac OS X-specific flags -->
+       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+@@ -304,9 +308,18 @@
+   <target name="ffmpeg" description="Build ffmpeg shared library" depends="init-native">
+ 
+     <fail message="ffmpeg repository not set!" unless="ffmpeg" />
+-    <fail message="lame repository not set!" unless="lame" />
+-    <fail message="vo-amrwbenc repository not set!" unless="voamrwbenc" />
+-    <fail message="x264 repository not set!" unless="x264" />
++
++    <condition property="has.ffmpeg.libs" value="trus">
++      <or>
++        <isset property="is.running.freebsd"/>
++        <and>
++          <isset property="lame"/>
++          <isset property="voamrwbenc"/>
++          <isset property="x264"/>
++        </and>
++      </or>
++    </condition>
++    <fail message="lame repository not set!" unless="has.ffmpeg.libs" />
+ 
+     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnffmpeg" objdir="${obj}">
+       <!-- common compiler flags -->
+@@ -329,12 +342,15 @@
+         Depending on the way that lame is built, libmp3lame.a may be in
+         libmp3lame/ or libmp3lame/.libs/.
+       -->
+-      <linkerarg value="-L${lame}/libmp3lame" />
+-      <linkerarg value="-L${lame}/libmp3lame/.libs" />
+-      <linkerarg value="-L${voamrwbenc}/.libs" />
+-      <linkerarg value="-L${x264}" />
++      <linkerarg value="-L${lame}/libmp3lame" if="lame" />
++      <linkerarg value="-L${lame}/libmp3lame/.libs" if="lame" />
++      <linkerarg value="-L${voamrwbenc}/.libs" if="voamrwbenc" />
++      <linkerarg value="-L${x264}" if="x264" />
+       <linkerarg value="-m${arch}" />
+       <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
++
++      <linkerarg value="-static-libgcc" if="is.running.freebsd"/>
++      <linkerarg value="-lc" if="is.running.freebsd"/>
+       <!--
+         Static libraries MUST be at the end otherwise they will not be added to
+         the shared library.
+@@ -345,9 +361,13 @@
+       <linkerarg value="-lavfilter" location="end" />
+       <linkerarg value="-lavutil" location="end" />
+       <linkerarg value="-lswscale" location="end" />
+-      <linkerarg value="-lmp3lame" location="end" />
+-      <linkerarg value="-lvo-amrwbenc" location="end" />
+-      <linkerarg value="-lx264" location="end" />
++      <linkerarg value="-lmp3lame" location="end" if="lame" />
++      <linkerarg value="-lvo-amrwbenc" location="end" if="voamrwbenc"  />
++      <linkerarg value="-lx264" location="end" if="x264" />
++      <linkerarg value="-Wl,-Bdynamic" location="end" unless="LIBAV"/>
++      <linkerarg value="-lmp3lame" location="end" unless="lame" />
++      <linkerarg value="-lvo-amrwbenc" location="end" unless="voamrwbenc"  />
++      <linkerarg value="-lx264" location="end" unless="x264" />
+ 
+       <!-- Unix specific flags -->
+       <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.unix" />
+@@ -474,7 +494,31 @@
+   <!-- compile jnportaudio library -->
+   <target name="portaudio" description="Build jnportaudio shared library" depends="init-native">
+ 
+-    <fail message="portaudio repository not set!" unless="portaudio" />
++    <condition property="is.portaudio.set" value="true">
++        <and>
++            <isset property="portaudio"/>
++            <not>
++                <isset property="portaudio.dynamic"/>
++            </not>
++        </and>
++    </condition>
++    <condition property="is.portaudio.set" value="true">
++        <and>
++            <isset property="portaudio.dynamic"/>
++            <not>
++                <isset property="portaudio"/>
++            </not>
++        </and>
++    </condition>
++
++    <condition property="is.portaudio.dynamic.set" value="true">
++        <and>
++            <isset property="portaudio.dynamic"/>
++            <isset property="is.running.unix"/>
++        </and>
++    </condition>
++
++    <fail message="portaudio repository not set!" unless="is.portaudio.set" />
+ 
+     <condition property="is.speex.set" value="true">
+         <and>
+@@ -496,7 +540,7 @@
+     <condition property="is.speex.dynamic.set" value="true">
+         <and>
+             <isset property="speex.dynamic"/>
+-            <isset property="is.running.linux"/>
++            <isset property="is.running.unix"/>
+         </and>
+     </condition>
+ 
+@@ -508,8 +552,8 @@
+       <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+       <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+       <compilerarg value="-fPIC" />
+-      <compilerarg value="-I${portaudio}/include" />
+-      <compilerarg value="-I${speex}/include" />
++      <compilerarg value="-I${portaudio.include}" if="portaudio.include" />
++      <compilerarg value="-I${speex}/include" unless="is.speex.dynamic.set" />
+       <compilerarg value="-I${system.JAVA_HOME}/include" unless="is.running.macos" />
+       <compilerarg value="-O2" />
+       <compilerarg value="-std=c99" />
+@@ -517,8 +561,8 @@
+ 
+       <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+-      <linkerarg value="-L${portaudio}/lib/.libs" />
+-      <linkerarg value="-L${speex}/libspeex/.libs" />
++      <linkerarg value="-L${portaudio.libdir}" if="portaudio.libdir" />
++      <linkerarg value="-L${speex}/libspeex/.libs" unless="is.speex.dynamic.set" />
+ 
+       <!-- Linux-specific flags -->
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+@@ -528,15 +572,16 @@
+       <!-- Static libraries MUST be at the end; otherwise, they will not be
+            added to shared library.
+       -->
+-      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.linux" />
+-      <linkerarg value="-lportaudio" location="end" if="is.running.linux" />
+-      <linkerarg value="-lspeexdsp" location="end" if="is.running.linux" unless="speex.dynamic"/>
+-      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.linux" />
++      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.unix" />
++      <linkerarg value="-lportaudio" location="end" if="is.running.unix" unless="portaudio.dynamic" />
++      <linkerarg value="-lspeexdsp" location="end" if="is.running.unix" unless="speex.dynamic"/>
++      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.unix" />
++      <linkerarg value="-lportaudio" location="end" if="is.portaudio.dynamic.set" />
+       <linkerarg value="-lspeexdsp" location="end" if="is.speex.dynamic.set"/>
+-      <linkerarg value="-lrt" location="end" if="is.running.linux" />
+-      <linkerarg value="-lasound" location="end" if="is.running.linux" />
+-      <linkerarg value="-lm" location="end" if="is.running.linux" />
+-      <linkerarg value="-lpthread" location="end" if="is.running.linux" />
++      <linkerarg value="-lrt" location="end" if="is.running.unix" />
++      <linkerarg value="-lasound" location="end" if="is.running.unix" />
++      <linkerarg value="-lm" location="end" if="is.running.unix" />
++      <linkerarg value="-lpthread" location="end" if="is.running.unix" />
+ 
+       <!-- OS X-specific flags -->
+       <compilerarg value="-arch"  if="is.running.macos" />
+@@ -611,7 +656,7 @@
+       <condition property="is.speex.dynamic.set" value="true">
+           <and>
+               <isset property="speex.dynamic"/>
+-              <isset property="is.running.linux"/>
++              <isset property="is.running.unix"/>
+           </and>
+       </condition>
+ 
+@@ -743,6 +788,13 @@
+ 
+         <fail message="opus repository not set!" unless="opus"/>
+ 
++        <condition property="is.opus.dynamic" value="unix">
++          <or>
++            <isset property="is.running.debian"/>
++            <isset property="is.running.freebsd"/>
++          </or>
++        </condition>
++
+         <cc outtype="shared" name="gcc"
+             objdir="${obj}"
+             outfile="${native_install_dir}/jnopus">
+@@ -751,12 +803,13 @@
+             <compilerarg value="-Wall" />
+             <compilerarg value="-fPIC"/>
+             <compilerarg value="-O2" />
+-            <compilerarg value="-I${opus}/include" unless="is.running.debian"/>
++            <compilerarg value="-I${opus}/include" unless="is.opus.dynamic"/>
+             <compilerarg value="-I/usr/include/opus" if="is.running.debian"/>
++            <compilerarg value="-I/usr/local/include/opus" if="is.running.freebsd"/>
+             <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+ 
+             <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+-            <linkerarg value="-L${opus}/.libs" unless="is.running.debian"/>
++            <linkerarg value="-L${opus}/.libs" unless="is.opus.dynamic"/>
+ 
+             <!-- Unix specific flags -->
+             <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
