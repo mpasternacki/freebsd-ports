@@ -2,10 +2,11 @@
 
 PORTNAME=	jitsi-devel
 PORTVERSION=	2.8.${GH_TAGNAME}
-CATEGORIES=	net-im
+CATEGORIES=	local net-im
 MASTER_SITES=	GH \
 	https://codeload.github.com/jitsi/libjitsi/tar.gz/${LIBJITSI_TAG}?dummy=/:libjitsi \
 	https://dl.dropboxusercontent.com/u/1067829/:dropbox
+VALID_CATEGORIES+= local	#FIXME
 
 MAINTAINER=	maciej@pasternacki.net
 COMMENT=	Development version of Jitsi IM
@@ -53,14 +54,15 @@ JITSI_NATIVE = hid hwaddressretriever globalshortcut unbound
 #TODO JITSI_NATIVE += sysactivity
 #TODO LIBJITSI_NATIVE += libvpx sctp
 
+jitsi.srcdir = ${WRKDIR}/jitsi-${GH_TAGNAME}
+
 native.subdir := freebsd${ARCH:S/i386//:S/amd/-/:S/x86_/-/}
-jitsi.sodir = ${WRKDIR}/jitsi-${GH_TAGNAME}/lib/native/${native.subdir}
+jitsi.sodir = ${jitsi.srcdir}/lib/native/${native.subdir}
 libjitsi.sodir = ${WRKDIR}/libjitsi-${LIBJITSI_TAG}/lib/native/${native.subdir}
 libjitsi.jawtrenderer.soname = libjnawtrenderer.so
 
 .for .lib. in ${LIBJITSI_NATIVE}
 libjitsi.${.lib.}.soname ?= libjn${.lib.}.so
-libjitsi.jni.so += ${libjitsi.sodir}/${libjitsi.${.lib.}.soname}
 jitsi.jni.so += ${jitsi.sodir}/${libjitsi.${.lib.}.soname}
 
 ${libjitsi.sodir}/${libjitsi.${.lib.}.soname}: ${WRKDIR}/bin/gcc
@@ -85,5 +87,16 @@ ${WRKDIR}/ice4j/ice4j.jar:
 
 do-build: ${WRKDIR}/ice4j/ice4j.jar ${jitsi.jni.so}
 	install ${WRKDIR}/ice4j/ice4j.jar ${WRKSRC}/lib/installer-exclude
+	cd ${jitsi.srcdir} && ${SETENV} ${MAKE_ENV} ${ANT} rebuild
+
+do-install:
+	${MKDIR} ${STAGEDIR}${PREFIX}/jitsi/lib
+	${COPYTREE_SHARE} ${jitsi.srcdir}/sc-bundles ${STAGEDIR}${PREFIX}/jitsi/sc-bundles
+	${COPYTREE_SHARE} ${jitsi.srcdir}/lib/bundle ${STAGEDIR}${PREFIX}/jitsi/lib/bundle
+	${COPYTREE_SHARE} ${jitsi.sodir} ${STAGEDIR}${PREFIX}/jitsi/lib/native
+
+	cd ${jitsi.srcdir}/lib && ${INSTALL_DATA} felix.jar felix.client.run.properties jitsi-defaults.properties logging.properties ${STAGEDIR}${PREFIX}/jitsi/lib/
+
+
 
 .include <bsd.port.mk>

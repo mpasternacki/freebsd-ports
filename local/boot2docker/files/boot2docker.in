@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# $FreeBSD$
+#
 
 # PROVIDE: boot2docker
 # REQUIRE: LOGIN
@@ -9,46 +12,47 @@
 
 name=boot2docker
 rcvar=boot2docker_enable
-extra_commands="attach ssh"
-attach_cmd=b2d_attach
-ssh_cmd=b2d_ssh
-start_cmd=b2d_start
-stop_cmd=b2d_stop
+desc="Boot2docker Bhyve VM"
 
 load_rc_config $name
 
-: ${boot2docker_enable:="NO"}
-: ${boot2docker_dir:="/var/lib/boot2docker"}
-: ${boot2docker_version:="1.5.0"}
-: ${boot2docker_data_path:="${boot2docker_dir}/data.img"}
-: ${boot2docker_data_size:="10G"}
-: ${boot2docker_mem:="2048M"}
-: ${boot2docker_ncpu:="2"}
-: ${boot2docker_if:="tap0"}
-: ${boot2docker_vmname:="${name}"}
-: ${boot2docker_flags:=""}
-: ${boot2docker_kernel_args:=""}
-: ${boot2docker_group:="operator"}
+: ${boot2docker_enable:=NO}
+: ${boot2docker_dir=/var/lib/boot2docker}
+: ${boot2docker_version=1.5.0}
+: ${boot2docker_data_path="${boot2docker_dir}/data.img"}
+: ${boot2docker_data_size=10G}
+: ${boot2docker_mem=2048M}
+: ${boot2docker_ncpu=2}
+: ${boot2docker_if=tap0}
+: ${boot2docker_vmname="${name}"}
+: ${boot2docker_group:=operator}
 
 # Default host IP CIDR from $boot2docker_if's ifconfig rc settings
 _boot2docker_hostip_ifconfig="$(ifconfig_getargs $boot2docker_if)"
 _boot2docker_hostip_ifconfig="${_boot2docker_hostip_ifconfig##*inet }"
 _boot2docker_hostip_ifconfig="${_boot2docker_hostip_ifconfig%% *}"
-: ${boot2docker_hostip:="${_boot2docker_hostip_ifconfig}"}
+: ${boot2docker_hostip="${_boot2docker_hostip_ifconfig}"}
 
 # Default netmask from host IP CIDR
 _intmask=$((0xffffffff ^ ((1 << (32 - ${boot2docker_hostip##*/})) - 1)))
-: ${boot2docker_netmask:="$(($_intmask>>24)).$(($_intmask>>16&255)).$(($_intmask>>8&255)).$(($_intmask&255))"}
+: ${boot2docker_netmask="$(($_intmask>>24)).$(($_intmask>>16&255)).$(($_intmask>>8&255)).$(($_intmask&255))"}
 
 # Default IP is host IP + 1
 _hostip=${boot2docker_hostip%/*}
-: ${boot2docker_ip:="${_hostip%.*}.$((${_hostip##*.}+1))"}
+: ${boot2docker_ip="${_hostip%.*}.$((${_hostip##*.}+1))"}
 
 # Default gateway is host's IP
-: ${boot2docker_gw:="${_hostip}"}
+: ${boot2docker_gw="${_hostip}"}
 
 # Default nameservers from resolv_conf
-: ${boot2docker_ns:="$(awk 'BEGIN { ORS=" " } $1 == "nameserver" { print $2 }' /etc/resolv.conf)"}
+: ${boot2docker_ns="$(awk 'BEGIN { ORS=" " } $1 == "nameserver" { print $2 }' /etc/resolv.conf)"}
+
+extra_commands="attach ssh"
+attach_cmd="attachtty ${rundir}/detachtty.sock"
+ssh_precmd="nc -z ${boot2docker_ip} 22"
+ssh_cmd="ssh -i ${boot2docker_dir}/id_rsa -l docker ${boot2docker_ip%%:*}"
+start_cmd=b2d_start
+stop_cmd=b2d_stop
 
 rundir=/var/run/${name}
 pidfile=${rundir}/detachtty.pid
@@ -66,32 +70,23 @@ _b2d_wait_for()
     info "Waiting for ${_what} (${_timeout}s)"
     while ! eval "${_test}" ; do
         sleep 1
-        if ! check_pidfile $pidfile $procname ; then
-            error "${name} has stopped"
-            return 1
-        fi
+        test -f $pidfile \
+            && check_pidfile $pidfile $procname \
+                || return 1
         _timeout=$((${_timeout} - 1))
         if [ ${_timeout} -gt 0 ] ; then
             debug "Still waiting for ${_what} (${_timeout}s)"
         else
-            error "Timed out waiting for ${_what}"
+            warn "Timed out waiting for ${_what}"
             return 1
         fi
     done
 }
 
-b2d_has_ssh()
-{
-    nc -z ${boot2docker_ip} 22
-}
-
 _b2d_magic='boot2docker, please format-me'
 b2d_start()
 {
-    if test -e /dev/vmm/${boot2docker_vmname} ; then
-        error "Bhyve VM ${boot2docker_vmname} already exists"
-        return 1
-    fi
+    test -e /dev/vmm/${boot2docker_vmname} && err 1 "Bhyve VM ${boot2docker_vmname} already exists"
     
     install -d -m 0750 -o root -g ${boot2docker_group} ${boot2docker_dir} || return 1
 
@@ -129,20 +124,20 @@ b2d_start()
 
     install -d -m 0700 ${rundir} || return 1
 
-    cat >${rundir}/device.map <<EOF || return 1
-(cd0) ${b2d_iso}
-(hd0) ${boot2docker_data_path}
-EOF
+    cat >${rundir}/device.map <<-EOF || return 1
+	(cd0) ${b2d_iso}
+	(hd0) ${boot2docker_data_path}
+	EOF
 
     _b2d_ns1="${boot2docker_ns%% *}"
     _b2d_ns2="${boot2docker_ns#* }"
     _b2d_ns2="${_b2d_ns2%% *}"
-    cat >${rundir}/grub.cfg <<EOF || return 1
-set root=(cd0,msdos1)
-linux /boot/vmlinuz64 com1=9600,8n1 loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10:LABEL=boot2docker-data base ip=${boot2docker_ip}::${boot2docker_gw}:${boot2docker_netmask}:boot2docker:eth0:off:${_b2d_ns1}:${_b2d_ns2} ${boot2docker_kernel_args}
-initrd /boot/initrd.img
-boot
-EOF
+    cat >${rundir}/grub.cfg <<-EOF || return 1
+	set root=(cd0,msdos1)
+	linux /boot/vmlinuz64 com1=9600,8n1 loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10:LABEL=boot2docker-data base ip=${boot2docker_ip}::${boot2docker_gw}:${boot2docker_netmask}:boot2docker:eth0:off:${_b2d_ns1}:${_b2d_ns2} ${boot2docker_kernel_args}
+	initrd /boot/initrd.img
+	boot
+	EOF
 
     debug "Running grub..."
     env TERM=dumb TZ=UTC /usr/local/sbin/grub-bhyve -e -m ${rundir}/device.map -d ${rundir} -M ${boot2docker_mem} ${boot2docker_vmname} || return 1
@@ -167,15 +162,15 @@ EOF
     _b2d_wait_for ${boot2docker_if} 15 "ifconfig ${boot2docker_if} | grep -q 'Opened by PID'" || return 1
     ifn_start ${boot2docker_if} || return 1
 
-    _b2d_wait_for SSH 15 b2d_has_ssh || return 1
+    _b2d_wait_for SSH 15 "${ssh_precmd}" || return 1
 
     debug "Installing resolv.conf..."
-    b2d_ssh sudo install -m 0644 /proc/net/pnp /etc/resolv.conf || return 1
+    eval "${ssh_cmd} sudo install -m 0644 /proc/net/pnp /etc/resolv.conf" || return 1
 
-    _b2d_wait_for certificates 15 "b2d_ssh test -d .docker" || return 1
+    _b2d_wait_for certificates 15 "${ssh_cmd} test -d .docker" || return 1
 
     debug "Fetching certificates..."
-    b2d_ssh tar -C '~/.docker' -c . > ${boot2docker_dir}/dot.docker.tar || return 1
+    eval "${ssh_cmd} tar -C '~/.docker' -c ." > ${boot2docker_dir}/dot.docker.tar || return 1
     tar -C ${boot2docker_dir} -xf ${boot2docker_dir}/dot.docker.tar --no-same-owner --no-same-permissions || return 1
     rm ${boot2docker_dir}/dot.docker.tar
 
@@ -185,16 +180,7 @@ EOF
     chmod 0640 ${boot2docker_dir}/*.pem ${boot2docker_dir}/profile.sh
 }
 
-b2d_ssh()
-{
-    ssh -i ${boot2docker_dir}/id_rsa -l docker ${boot2docker_ip%%:*} "${@}"
-}
-
-b2d_attach()
-{
-    attachtty ${rundir}/detachtty.sock
-}
-
+# FIXME: refactor to be more robust?
 b2d_stop()
 {
     if [ -z "$rc_pid" ]; then
@@ -203,8 +189,8 @@ b2d_stop()
 	return 1
     fi
 
-    if b2d_has_ssh ; then
-        b2d_ssh sudo halt
+    if run_rc_command ssh sudo halt ; then
+        _b2d_wait_for halt 30 "! ifconfig ${boot2docker_if} | grep -q 'Opened by PID'"
     elif [ -e /dev/vmm/${boot2docker_vmname} ] ; then
         bhyvectl --vm=${boot2docker_vmname} --force-poweroff
     fi
@@ -217,4 +203,4 @@ b2d_stop()
     fi
 }
 
-run_rc_command "${@}"
+run_rc_command "$@"
