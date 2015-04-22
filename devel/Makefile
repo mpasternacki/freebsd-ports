@@ -278,7 +278,6 @@
     SUBDIR += cproto
     SUBDIR += cpuflags
     SUBDIR += critcl
-    SUBDIR += cross-binutils
     SUBDIR += cscope
     SUBDIR += cscout
     SUBDIR += csmith
@@ -1325,9 +1324,12 @@
     SUBDIR += mingw32-pdcurses
     SUBDIR += mingw32-pthreads
     SUBDIR += mingw32-zlib
-    SUBDIR += mingw64-binutils
     SUBDIR += mips-binutils
+    SUBDIR += mips-gcc
+    SUBDIR += mips-xtoolchain-gcc
     SUBDIR += mips64-binutils
+    SUBDIR += mips64-gcc
+    SUBDIR += mips64-xtoolchain-gcc
     SUBDIR += mk
     SUBDIR += mk-configure
     SUBDIR += mkcmd
@@ -3521,7 +3523,6 @@
     SUBDIR += pecl-uopz
     SUBDIR += pecl-uploadprogress
     SUBDIR += pecl-uri_template
-    SUBDIR += pecl-uuid
     SUBDIR += pecl-vld
     SUBDIR += pecl-xhprof
     SUBDIR += pecl-yac
@@ -3553,15 +3554,6 @@
     SUBDIR += php5-sysvshm
     SUBDIR += php5-thrift
     SUBDIR += php5-tokenizer
-    SUBDIR += php53-gettext
-    SUBDIR += php53-json
-    SUBDIR += php53-pcntl
-    SUBDIR += php53-readline
-    SUBDIR += php53-shmop
-    SUBDIR += php53-sysvmsg
-    SUBDIR += php53-sysvsem
-    SUBDIR += php53-sysvshm
-    SUBDIR += php53-tokenizer
     SUBDIR += php55-gettext
     SUBDIR += php55-json
     SUBDIR += php55-pcntl
@@ -4534,7 +4526,6 @@
     SUBDIR += rubygem-ice_nine
     SUBDIR += rubygem-igraph
     SUBDIR += rubygem-inflecto
-    SUBDIR += rubygem-inline
     SUBDIR += rubygem-interact
     SUBDIR += rubygem-io-like
     SUBDIR += rubygem-iobuffer
@@ -4668,6 +4659,7 @@
     SUBDIR += rubygem-ruby_parser
     SUBDIR += rubygem-rubygame
     SUBDIR += rubygem-rubygems-tasks
+    SUBDIR += rubygem-rubyinline
     SUBDIR += rubygem-rubyinlineaccel
     SUBDIR += rubygem-rubytree
     SUBDIR += rubygem-rufus-scheduler
@@ -4761,7 +4753,6 @@
     SUBDIR += sabre
     SUBDIR += safe-iop
     SUBDIR += sbt
-    SUBDIR += scala-ide
     SUBDIR += scalatest
     SUBDIR += scandoc
     SUBDIR += scons
@@ -4830,7 +4821,6 @@
     SUBDIR += stringencoders
     SUBDIR += stxxl
     SUBDIR += styx
-    SUBDIR += subclipse
     SUBDIR += subcommander2
     SUBDIR += subversion
     SUBDIR += subversion-book
