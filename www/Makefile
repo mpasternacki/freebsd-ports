@@ -852,7 +852,6 @@
     SUBDIR += p5-FurlX-Coro
     SUBDIR += p5-Gantry
     SUBDIR += p5-Geo-Caching
-    SUBDIR += p5-Google-Code-Upload
     SUBDIR += p5-Google-Search
     SUBDIR += p5-Gtk2-WebKit
     SUBDIR += p5-Gungho
@@ -1212,6 +1211,7 @@
     SUBDIR += p5-Text-MultiMarkdown-ApacheHandler
     SUBDIR += p5-Tie-TinyURL
     SUBDIR += p5-Toader
+    SUBDIR += p5-Toadfarm
     SUBDIR += p5-Twiggy
     SUBDIR += p5-Twiggy-TLS
     SUBDIR += p5-URI-Encode
@@ -1821,6 +1821,7 @@
     SUBDIR += rubygem-gitlab-flowdock-git-hook
     SUBDIR += rubygem-gitlab-gollum-lib
     SUBDIR += rubygem-gitlab-grack
+    SUBDIR += rubygem-gollum-grit_adapter
     SUBDIR += rubygem-gollum-lib
     SUBDIR += rubygem-gon
     SUBDIR += rubygem-gon-rails4

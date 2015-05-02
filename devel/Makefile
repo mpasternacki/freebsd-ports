@@ -1383,6 +1383,7 @@
     SUBDIR += ocaml-annexlib
     SUBDIR += ocaml-calendar
     SUBDIR += ocaml-camljava
+    SUBDIR += ocaml-camlp4
     SUBDIR += ocaml-camlp5
     SUBDIR += ocaml-camomile
     SUBDIR += ocaml-camomile-examples
@@ -1400,6 +1401,7 @@
     SUBDIR += ocaml-ounit
     SUBDIR += ocaml-pcre
     SUBDIR += ocaml-pomap
+    SUBDIR += ocaml-ppx-tools
     SUBDIR += ocaml-react
     SUBDIR += ocaml-res
     SUBDIR += ocaml-sdl
@@ -2815,6 +2817,7 @@
     SUBDIR += p5-SVN-Statistics
     SUBDIR += p5-SVN-Web
     SUBDIR += p5-Safe-Isa
+    SUBDIR += p5-Sah
     SUBDIR += p5-Scalar-Defer
     SUBDIR += p5-Scalar-Does
     SUBDIR += p5-Scalar-Listify
@@ -3232,7 +3235,6 @@
     SUBDIR += p5-autodie
     SUBDIR += p5-autovivification
     SUBDIR += p5-bareword-filehandles
-    SUBDIR += p5-base
     SUBDIR += p5-boolean
     SUBDIR += p5-capitalization
     SUBDIR += p5-carton
