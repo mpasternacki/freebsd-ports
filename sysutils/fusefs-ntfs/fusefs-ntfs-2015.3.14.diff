@@ -1,0 +1,76 @@
+diff --git i/sysutils/fusefs-ntfs/Makefile w/sysutils/fusefs-ntfs/Makefile
+index bb7cae8..d3d2c85 100644
+--- i/sysutils/fusefs-ntfs/Makefile
++++ w/sysutils/fusefs-ntfs/Makefile
+@@ -2,8 +2,7 @@
+ # $FreeBSD$
+ 
+ PORTNAME=	ntfs
+-PORTVERSION=	2014.2.15
+-PORTREVISION=	2
++PORTVERSION=	2015.3.14
+ CATEGORIES=	sysutils
+ MASTER_SITES=	http://tuxera.com/opensource/
+ PKGNAMEPREFIX=	fusefs-
+diff --git i/sysutils/fusefs-ntfs/distinfo w/sysutils/fusefs-ntfs/distinfo
+index 112bd68..77af55d 100644
+--- i/sysutils/fusefs-ntfs/distinfo
++++ w/sysutils/fusefs-ntfs/distinfo
+@@ -1,2 +1,2 @@
+-SHA256 (ntfs-3g_ntfsprogs-2014.2.15.tgz) = 4c3099400cb14b231a3c9d718b3a8d152d38555059341ce5fc6d02292a4a5b56
+-SIZE (ntfs-3g_ntfsprogs-2014.2.15.tgz) = 1143575
++SHA256 (ntfs-3g_ntfsprogs-2015.3.14.tgz) = 97f996015d8316d4a272bd2629978e5e97072dd3cc148ce39802f8037c6538f2
++SIZE (ntfs-3g_ntfsprogs-2015.3.14.tgz) = 1210069
+diff --git i/sysutils/fusefs-ntfs/files/patch-configure w/sysutils/fusefs-ntfs/files/patch-configure
+index 39fec4d..443dfbc 100644
+--- i/sysutils/fusefs-ntfs/files/patch-configure
++++ w/sysutils/fusefs-ntfs/files/patch-configure
+@@ -9,33 +9,6 @@
+  			*) enable_mount_helper="no" ;;
+  		esac
+  
+-@@ -9527,7 +9527,7 @@
+-       hardcode_shlibpath_var=no
+-       ;;
+- 
+--    freebsd1*)
+-+    freebsd1.*)
+-       ld_shlibs=no
+-       ;;
+- 
+-@@ -10402,7 +10402,7 @@
+-   shlibpath_var=LD_LIBRARY_PATH
+-   ;;
+- 
+--freebsd1*)
+-+freebsd1.*)
+-   dynamic_linker=no
+-   ;;
+- 
+-@@ -10413,7 +10413,7 @@
+-     objformat=`/usr/bin/objformat`
+-   else
+-     case $host_os in
+--    freebsd[123]*) objformat=aout ;;
+-+    freebsd[123].*) objformat=aout ;;
+-     *) objformat=elf ;;
+-     esac
+-   fi
+ @@ -11894,7 +11894,7 @@
+  		with_fuse="external"
+  		;;
+diff --git i/sysutils/fusefs-ntfs/pkg-plist w/sysutils/fusefs-ntfs/pkg-plist
+index 3ef7cef..ee48950 100644
+--- i/sysutils/fusefs-ntfs/pkg-plist
++++ w/sysutils/fusefs-ntfs/pkg-plist
+@@ -47,8 +47,8 @@ include/ntfs-3g/volume.h
+ include/ntfs-3g/xattrs.h
+ lib/libntfs-3g.a
+ lib/libntfs-3g.so
+-lib/libntfs-3g.so.85
+-lib/libntfs-3g.so.85.0.0
++lib/libntfs-3g.so.86
++lib/libntfs-3g.so.86.0.0
+ libdata/pkgconfig/libntfs-3g.pc
+ man/man8/mkntfs.8.gz
+ man/man8/ntfs-3g.8.gz
