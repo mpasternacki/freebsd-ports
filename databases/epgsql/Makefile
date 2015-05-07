@@ -2,6 +2,7 @@
 
 PORTNAME=	epgsql
 PORTVERSION=	3.1.0
+PORTREVISION=	2
 CATEGORIES=	databases
 
 MAINTAINER=	olgeni@FreeBSD.org
