@@ -1789,9 +1789,11 @@
     SUBDIR += rubygem-akami
     SUBDIR += rubygem-amazon-ecs
     SUBDIR += rubygem-anemone
+    SUBDIR += rubygem-asana
     SUBDIR += rubygem-async_sinatra
     SUBDIR += rubygem-bluecloth
     SUBDIR += rubygem-bootstrap-sass
+    SUBDIR += rubygem-browser
     SUBDIR += rubygem-carrierwave
     SUBDIR += rubygem-cgi_multipart_eof_fix
     SUBDIR += rubygem-chosen-rails
