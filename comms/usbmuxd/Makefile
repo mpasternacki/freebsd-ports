@@ -14,7 +14,9 @@ LICENSE_COMB=	dual
 LIB_DEPENDS=	libplist.so:${PORTSDIR}/devel/libplist \
 		libimobiledevice.so:${PORTSDIR}/comms/libimobiledevice
 
-USES=		autoreconf libtool pathfix pkgconfig tar:bzip2
+USES=		autoreconf cpe libtool pathfix pkgconfig tar:bzip2
+CPE_VENDOR=	nikias_bassen
+CPE_VERSION=	${DISTVERSION:C/-.*//}
 GNU_CONFIGURE=	yes
 CONFIGURE_ARGS=	--without-systemd \
 		libusb_CFLAGS="-I/usr/include" \
