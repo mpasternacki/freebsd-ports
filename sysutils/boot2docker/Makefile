@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=	boot2docker
-PORTVERSION=	1.5.0
+PORTVERSION=	1.6.2
 CATEGORIES=	sysutils
 MASTER_SITES=	https://github.com/${PORTNAME}/${PORTNAME}/releases/download/v${DISTVERSION}/ \
 		https://get.docker.com/builds/FreeBSD/x86_64/:DOCKER

@@ -1,0 +1,4 @@
+SHA256 (boot2docker-1.6.2/boot2docker.iso) = eb5a44b29560ffd113de49f7ae74e24d31ef1662ee4ff74c277b12b2af19d124
+SIZE (boot2docker-1.6.2/boot2docker.iso) = 26214400
+SHA256 (boot2docker-1.6.2/docker-1.6.2.tgz) = ce9ceb07bbfc990c191bbc8fab098f65d3cca7850d3de572c589479651ef4200
+SIZE (boot2docker-1.6.2/docker-1.6.2.tgz) = 2178545
