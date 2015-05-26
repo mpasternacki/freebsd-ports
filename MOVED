@@ -7588,3 +7588,11 @@ www/rubygem-taggable|www/rubygem-acts_as_taggable|2015-05-23|Rename to match our
 security/rubygem-meterpreter_bins|security/rubygem-metasploit-payloads|2015-05-23|Renamed upstream
 textproc/rubygem-augeas|textproc/rubygem-ruby-augeas|2015-05-23|Rename to match our rubygems naming
 textproc/rubygem-xslt|textproc/rubygem-ruby-xslt|2015-05-24|Rename to match our rubygems naming
+net-mgmt/glpi-plugins-tracker-agent|net-mgmt/glpi-plugins-fusioninventory-server|2015-05-24|Has expired: superceded by net-mgmt/glpi-plugins-fusioninventory-server
+net-mgmt/glpi-plugins-tracker-server|net-mgmt/glpi-plugins-fusioninventory-server|2015-05-24|Has expired: superceded by net-mgmt/glpi-plugins-fusioninventory-server
+science/rubygem-netcdf|science/rubygem-ruby-netcdf|2015-05-24|Rename to match our rubygems naming
+security/rubygem-rc4|security/rubygem-ruby-rc4|2015-05-24|Rename to match our rubygems naming
+print/rubygem-colortools|print/rubygem-color-tools|2015-05-24|Rename to match our rubygems naming
+security/qtkeychain|security/qtkeychain-qt5|2015-05-24|Renamed to indicate supported QT version
+emulators/wine-compholio|emulators/wine-staging|2015-05-23|Renamed
+emulators/i386-wine-compholio|emulators/i386-wine-staging|2015-05-23|Renamed
