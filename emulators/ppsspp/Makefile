@@ -3,6 +3,7 @@
 PORTNAME=	ppsspp
 PORTVERSION=	1.0.1
 DISTVERSIONPREFIX=	v
+PORTREVISION=	2
 CATEGORIES=	emulators
 .ifndef GITHUB_GROUPS
 MASTER_SITES=	https://codeload.github.com/${GH_ACCOUNT}/${PORTNAME}-lang/tar.gz/52c757e?dummy=/:lang \
@@ -23,6 +24,7 @@ COMMENT=	PSP emulator in C++ with dynarec JIT for x86, ARM, MIPS
 LICENSE=	GPLv2 # or any later version
 
 LIB_DEPENDS=	libavcodec.so:${PORTSDIR}/multimedia/ffmpeg
+RUN_DEPENDS=	xdg-open:${PORTSDIR}/devel/xdg-utils
 
 USE_GITHUB=	yes
 .ifndef GITHUB_GROUPS
@@ -50,6 +52,8 @@ QT4_USE=	QT4=qmake_build,moc_build,rcc_build,uic_build,linguisttools_build,gui,o
 QT5_USES=	qmake:outsource
 QT5_USE=	QT5=qmake_build,buildtools_build,linguisttools_build,gui,opengl,widgets
 SDL_USES=	cmake:outsource ninja
+SDL_BUILD_DEPENDS=	png>=1.6:${PORTSDIR}/graphics/png
+SDL_LIB_DEPENDS=	libpng.so:${PORTSDIR}/graphics/png
 SDL_LDFLAGS=	-L${LOCALBASE}/lib # ffmpeg
 
 .include <bsd.port.options.mk>

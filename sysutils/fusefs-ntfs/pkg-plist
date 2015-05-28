@@ -6,12 +6,9 @@ bin/ntfs-3g.usermap
 bin/ntfscat
 bin/ntfscluster
 bin/ntfscmp
-bin/ntfsdecrypt
 bin/ntfsfix
 bin/ntfsinfo
 bin/ntfsls
-bin/ntfstruncate
-bin/ntfswipe
 include/ntfs-3g/acls.h
 include/ntfs-3g/attrib.h
 include/ntfs-3g/attrlist.h

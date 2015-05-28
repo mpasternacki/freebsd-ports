@@ -14,15 +14,13 @@ COMMENT=	Mount NTFS partitions (read/write) and disk images
 LICENSE=	GPLv2
 LICENSE_FILE=	${WRKSRC}/COPYING
 
-LIB_DEPENDS+=	libgnutls.so:${PORTSDIR}/security/gnutls
 CONFLICTS_BUILD=	bonobo-1.*
 CONFLICTS_INSTALL=	ntfsprogs-*
 USES=		fuse pkgconfig iconv libtool tar:tgz
 USE_LDCONFIG=	yes
 GNU_CONFIGURE=	yes
 CONFIGURE_ARGS=	--exec-prefix=${PREFIX} --disable-mount-helper \
-		--disable-mtab --with-fuse=external --disable-ldconfig \
-		--enable-crypto --enable-extras
+		--disable-mtab --with-fuse=external --disable-ldconfig
 CPPFLAGS+=	-I${WRKSRC}/include/ntfs-3g/ -I${LOCALBASE}/include
 LDFLAGS+=	-L${LOCALBASE}/lib
 
