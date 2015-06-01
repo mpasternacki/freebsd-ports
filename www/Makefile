@@ -1798,6 +1798,7 @@
     SUBDIR += rubygem-bootstrap-sass
     SUBDIR += rubygem-browser
     SUBDIR += rubygem-cal-heatmap-rails
+    SUBDIR += rubygem-cal-heatmap-rails-rails4
     SUBDIR += rubygem-carrierwave
     SUBDIR += rubygem-cgi_multipart_eof_fix
     SUBDIR += rubygem-chosen-rails
@@ -1920,6 +1921,7 @@
     SUBDIR += rubygem-redis-rails
     SUBDIR += rubygem-redmine_acts_as_taggable_on
     SUBDIR += rubygem-responders
+    SUBDIR += rubygem-responders-rails3
     SUBDIR += rubygem-rest-client
     SUBDIR += rubygem-rfacebook
     SUBDIR += rubygem-rfeedfinder
