@@ -3864,6 +3864,7 @@
     SUBDIR += py-foolscap
     SUBDIR += py-fortran
     SUBDIR += py-freebsd
+    SUBDIR += py-freezegun
     SUBDIR += py-fs
     SUBDIR += py-fsm
     SUBDIR += py-fudge
@@ -4004,6 +4005,7 @@
     SUBDIR += py-posix_ipc
     SUBDIR += py-pp
     SUBDIR += py-pqueue
+    SUBDIR += py-pretend
     SUBDIR += py-prettytable
     SUBDIR += py-prioritized_methods
     SUBDIR += py-prompt_toolkit
@@ -4038,6 +4040,7 @@
     SUBDIR += py-pyshapelib
     SUBDIR += py-pytemplate
     SUBDIR += py-pytest
+    SUBDIR += py-pytest-capturelog
     SUBDIR += py-pytest-runner
     SUBDIR += py-pytest-timeout
     SUBDIR += py-python-jenkins
