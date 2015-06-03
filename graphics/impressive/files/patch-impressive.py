@@ -1,13 +1,11 @@
---- impressive.py.orig	2014-10-04 23:28:04 UTC
+--- impressive.py.orig	2015-06-03 14:12:05 UTC
 +++ impressive.py
-@@ -182,8 +182,8 @@
-     from OpenGL.GL import *
-     import pygame
-     from pygame.locals import *
--    import Image, ImageDraw, ImageFont, ImageFilter
--    import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
-+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
-+    from PIL import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
- except (ValueError, ImportError), err:
-     print >>sys.stderr, "Oops! Cannot load necessary modules:", err
-     print >>sys.stderr, """To use Impressive, you need to install the following Python modules:
+@@ -334,7 +334,7 @@ class Platform_PyGame(object):
+ 
+     def LoadOpenGL(self):
+         try:
+-            sdl = CDLL(ctypes.util.find_library("SDL") or "SDL", RTLD_GLOBAL)
++            sdl = CDLL(ctypes.util.find_library("SDL-1.2") or "SDL", RTLD_GLOBAL)
+             get_proc_address = CFUNCTYPE(c_void_p, c_char_p)(('SDL_GL_GetProcAddress', sdl))
+         except OSError:
+             raise ImportError("failed to load the SDL library")
