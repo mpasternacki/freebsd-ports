@@ -625,6 +625,7 @@
     SUBDIR += go-uuid
     SUBDIR += gob2
     SUBDIR += gobject-introspection
+    SUBDIR += godep
     SUBDIR += godot
     SUBDIR += goffice
     SUBDIR += goffice010
@@ -3945,6 +3946,7 @@
     SUBDIR += py-lazy
     SUBDIR += py-levenshtein
     SUBDIR += py-liblarch
+    SUBDIR += py-libpeas
     SUBDIR += py-libplist
     SUBDIR += py-libvirt
     SUBDIR += py-ll-core
@@ -4283,6 +4285,7 @@
     SUBDIR += py-zope.viewlet
     SUBDIR += py3-dbus
     SUBDIR += py3-gobject3
+    SUBDIR += py3-libpeas
     SUBDIR += py3-xdg
     SUBDIR += py_static_check
     SUBDIR += pybugz
