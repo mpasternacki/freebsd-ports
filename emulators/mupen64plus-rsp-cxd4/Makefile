@@ -1,22 +1,22 @@
 # Created by: Jose Alonso Cardenas Marquez <acm@FreeBSD.org>
 # $FreeBSD$
 
-PORTREVISION=	0
-PKGNAMESUFFIX=	-video-z64
+PKGNAMESUFFIX=	-rsp-cxd4
 DISTFILES=	${PORTNAME}${PKGNAMESUFFIX}-src-${PORTVERSION}${EXTRACT_SUFX}:plugin
 
-COMMENT=	Low-level RDP plugin for the Mupen64Plus
+COMMENT=	Low-level RSP processor plugin for the Mupen64Plus
 
 LIB_DEPENDS=	libmupen64plus.so.2:${PORTSDIR}/emulators/mupen64plus-core
 
-USE_GL=		gl glu glew
-USE_SDL=	sdl2
+USE_GL=		#
+USE_SDL=	#
 
 MASTERDIR=	${.CURDIR}/../mupen64plus-core
 
 OPTIONS_DEFINE=	#
 
-CFLAGS+=	-I${LOCALBASE}/include -I${LOCALBASE}/include/GL -I${LOCALBASE}/include/${PORTNAME}
+MAKE_ENV+=	SSE=none	
+CFLAGS+=	-I${LOCALBASE}/include -I${LOCALBASE}/include/${PORTNAME}
 LDFLAGS+=	-L${LOCALBASE}/lib
 
 DISTINFO_FILE=		${.CURDIR}/distinfo
