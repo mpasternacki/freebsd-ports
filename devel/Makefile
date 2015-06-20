@@ -57,7 +57,9 @@
     SUBDIR += amd64-gcc
     SUBDIR += amd64-xtoolchain-gcc
     SUBDIR += android-tools-adb
+    SUBDIR += android-tools-adb-devel
     SUBDIR += android-tools-fastboot
+    SUBDIR += android-tools-fastboot-devel
     SUBDIR += anjuta
     SUBDIR += anjuta-extras
     SUBDIR += antlr
@@ -1375,6 +1377,7 @@
     SUBDIR += mph
     SUBDIR += mq4cpp
     SUBDIR += msgpack
+    SUBDIR += msgpuck
     SUBDIR += msp430-binutils
     SUBDIR += msp430-gcc
     SUBDIR += msp430-gdb
