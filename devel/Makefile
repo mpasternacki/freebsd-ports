@@ -410,7 +410,9 @@
     SUBDIR += elfsh
     SUBDIR += elftoaout
     SUBDIR += elixir-conform
+    SUBDIR += elixir-decimal
     SUBDIR += elixir-exrm
+    SUBDIR += elixir-plug
     SUBDIR += elixir-poison
     SUBDIR += embb
     SUBDIR += epl.el
@@ -434,6 +436,7 @@
     SUBDIR += erlang-goldrush
     SUBDIR += erlang-gproc
     SUBDIR += erlang-ibrowse
+    SUBDIR += erlang-jobs
     SUBDIR += erlang-jsx
     SUBDIR += erlang-lager
     SUBDIR += erlang-lager_syslog
@@ -441,6 +444,7 @@
     SUBDIR += erlang-msgpack
     SUBDIR += erlang-neotoma
     SUBDIR += erlang-oserl
+    SUBDIR += erlang-parse_trans
     SUBDIR += erlang-poolboy
     SUBDIR += erlang-protobuffs
     SUBDIR += erlang-providers
@@ -4083,6 +4087,7 @@
     SUBDIR += py-pytest-xdist
     SUBDIR += py-python-bugzilla
     SUBDIR += py-python-jenkins
+    SUBDIR += py-python-pcre
     SUBDIR += py-python-statsd
     SUBDIR += py-python2-pythondialog
     SUBDIR += py-pythonbrew
