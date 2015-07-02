@@ -1,7 +1,7 @@
 # $FreeBSD$
 
 PORTNAME=	boot2docker
-PORTVERSION=	1.6.2
+PORTVERSION=	1.7.0
 CATEGORIES=	sysutils
 MASTER_SITES=	https://github.com/${PORTNAME}/${PORTNAME}/releases/download/v${DISTVERSION}/ \
 		https://get.docker.com/builds/FreeBSD/x86_64/:DOCKER
@@ -21,8 +21,7 @@ OPTIONS_SUB=	yes
 DOCKER_DESC=	Include Docker client binary
 USE_RC_SUBR=	${PORTNAME}
 
-RUN_DEPENDS=	detachtty:${PORTSDIR}/misc/detachtty \
-		grub-bhyve:${PORTSDIR}/sysutils/grub2-bhyve
+RUN_DEPENDS=	grub-bhyve:${PORTSDIR}/sysutils/grub2-bhyve
 
 .include <bsd.port.options.mk>
 

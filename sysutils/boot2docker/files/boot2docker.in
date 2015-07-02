@@ -26,6 +26,7 @@ load_rc_config $name
 : ${boot2docker_if=tap0}
 : ${boot2docker_vmname="${name}"}
 : ${boot2docker_group:=operator}
+: ${boot2docker_nmdm=/dev/nmdm0}
 
 # Default host IP CIDR from $boot2docker_if's ifconfig rc settings
 _boot2docker_hostip_ifconfig="$(ifconfig_getargs $boot2docker_if)"
@@ -47,17 +48,17 @@ _hostip=${boot2docker_hostip%/*}
 # Default nameservers from resolv_conf
 : ${boot2docker_ns="$(awk 'BEGIN { ORS=" " } $1 == "nameserver" { print $2 }' /etc/resolv.conf)"}
 
-extra_commands="attach ssh"
-attach_cmd="attachtty ${rundir}/detachtty.sock"
+extra_commands="console ssh"
+console_cmd="cu -l ${boot2docker_nmdm}B -s 9600"
 ssh_precmd="nc -z ${boot2docker_ip} 22"
 ssh_cmd="ssh -i ${boot2docker_dir}/id_rsa -l docker ${boot2docker_ip%%:*}"
 start_cmd=b2d_start
 stop_cmd=b2d_stop
 
 rundir=/var/run/${name}
-pidfile=${rundir}/detachtty.pid
-procname=/usr/local/bin/detachtty
-required_modules=vmm
+pidfile=/var/run/${name}.pid
+procname=/usr/sbin/bhyve
+required_modules='vmm nmdm'
 
 b2d_iso=%%DATADIR%%/boot2docker.iso
 
@@ -143,21 +144,19 @@ b2d_start()
     env TERM=dumb TZ=UTC /usr/local/sbin/grub-bhyve -e -m ${rundir}/device.map -d ${rundir} -M ${boot2docker_mem} ${boot2docker_vmname} || return 1
     
     debug "Starting bhyve..."
-    env TERM=dumb TZ=UTC /usr/local/bin/detachtty \
-        --dribble-file ${rundir}/detachtty.dribble \
-        --log-file ${rundir}/detachtty.log \
-        --pid-file ${rundir}/detachtty.pid \
-        ${rundir}/detachtty.sock \
+    daemon \
+        -c -p ${pidfile} -f \
+        env TERM=dumb TZ=UTC \
         /usr/sbin/bhyve \
         -c ${boot2docker_ncpu} -m ${boot2docker_mem} -H -P -A \
-        -l com1,stdio \
+        -l com1,${boot2docker_nmdm}A \
         -s 0:0,hostbridge \
         -s 1:0,lpc \
         -s 2:0,virtio-net,${boot2docker_if} \
         -s 3:0,ahci-hd,${boot2docker_data_path} \
         -s 3:1,ahci-cd,${b2d_iso} \
         ${boot2docker_flags} \
-        ${boot2docker_vmname} || return 1
+        ${boot2docker_vmname}
 
     _b2d_wait_for ${boot2docker_if} 15 "ifconfig ${boot2docker_if} | grep -q 'Opened by PID'" || return 1
     ifn_start ${boot2docker_if} || return 1
