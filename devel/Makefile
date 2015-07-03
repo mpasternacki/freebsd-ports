@@ -411,9 +411,16 @@
     SUBDIR += elftoaout
     SUBDIR += elixir-conform
     SUBDIR += elixir-decimal
+    SUBDIR += elixir-dialyze
+    SUBDIR += elixir-exactor
+    SUBDIR += elixir-exjsx
     SUBDIR += elixir-exrm
+    SUBDIR += elixir-lager_logger
     SUBDIR += elixir-plug
     SUBDIR += elixir-poison
+    SUBDIR += elixir-timex
+    SUBDIR += elixir-timex-interval
+    SUBDIR += elixir-tzdata
     SUBDIR += embb
     SUBDIR += epl.el
     SUBDIR += epm
@@ -424,7 +431,6 @@
     SUBDIR += erlang-bbmustache
     SUBDIR += erlang-bear
     SUBDIR += erlang-common_lib
-    SUBDIR += erlang-cowlib
     SUBDIR += erlang-cuttlefish
     SUBDIR += erlang-erlware_commons
     SUBDIR += erlang-esdl
@@ -1038,6 +1044,7 @@
     SUBDIR += libbobcat
     SUBDIR += libbonobo
     SUBDIR += libbonobo-reference
+    SUBDIR += libbson
     SUBDIR += libburn
     SUBDIR += libc++
     SUBDIR += libccid

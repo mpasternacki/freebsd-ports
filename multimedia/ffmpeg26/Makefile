@@ -3,7 +3,7 @@
 
 PORTNAME=	ffmpeg
 PORTVERSION=	2.6.3
-PORTREVISION=	4
+PORTREVISION=	5
 CATEGORIES=	multimedia audio ipv6 net
 MASTER_SITES=	http://ffmpeg.org/releases/
 PKGNAMESUFFIX=	26
@@ -18,6 +18,9 @@ BUILD_DEPENDS=	yasm:${PORTSDIR}/devel/yasm \
 		${LOCALBASE}/bin/as:${PORTSDIR}/devel/binutils
 
 UNIQUENAME=	${PKGNAMEPREFIX}${PORTNAME}${PKGNAMESUFFIX}
+
+DEPRECATED=		2.6 branch is outdated, use multimedia/ffmpeg instead
+EXPIRATION_DATE=	2015-07-31
 
 HAS_CONFIGURE=	yes
 CONFIGURE_LOG=	config.err
