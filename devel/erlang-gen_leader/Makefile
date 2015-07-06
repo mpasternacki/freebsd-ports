@@ -18,11 +18,8 @@ GH_ACCOUNT=	garret-smith
 GH_PROJECT=	gen_leader_revival
 GH_TAGNAME=	a12a4e3
 
-.include <bsd.port.options.mk>
-
 post-patch:
-	@${REINPLACE_CMD} -e "s/%%PORTVERSION%%/${PORTVERSION}/" ${WRKSRC}/ebin/gen_leader.app
-	@${RM} ${WRKSRC}/ebin/*.bak ${WRKSRC}/ebin/*.orig
+	@${REINPLACE_CMD} -i '' -e 's/{ *vsn, .*}/{vsn, "${PORTVERSION}"}/' ${WRKSRC}/ebin/*.app
 
 do-build:
 	@cd ${WRKSRC} && ./rebar compile
